@@ -1,0 +1,678 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PunSpin — Challenge Wheel</title>
+  <style>
+    :root{
+      --bg:#090d18;--surface:#111a2b;--surface2:#17243a;--line:#273852;
+      --text:#eef4ff;--muted:#91a2bd;--blue:#5b8cff;--cyan:#42d9e8;
+      --purple:#a78bfa;--green:#49d7a0;--danger:#ff7185;--radius:20px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;min-height:100vh;color:var(--text);
+      font-family: 'Estedad', sans-serif;
+      background:
+        radial-gradient(ellipse at 15% 0%,#263b72 0,transparent 36%),
+        radial-gradient(ellipse at 90% 18%,#31205e 0,transparent 32%),
+        linear-gradient(145deg,#080c16,#0c1424 55%,#101629);
+    }
+    button,input,textarea{font:inherit}
+    .desktop{min-height:100vh;padding:34px 22px 60px;display:flex;flex-direction:column;gap:22px;max-width:1240px;margin:auto}
+    .icons{display:flex;gap:10px;flex-wrap:wrap}
+    .desk-icon{display:flex;align-items:center;gap:8px;padding:9px 13px;border:1px solid #ffffff18;border-radius:999px;background:#ffffff09;color:#cbd8ef;cursor:pointer;font-size:12px;transition:.2s}
+    .desk-icon:hover{background:#ffffff16;transform:translateY(-2px);border-color:#6c8fe7}
+    .desk-icon b{font-size:16px}
+    .window{width:100%;margin:0 auto;background:linear-gradient(145deg,#111b2d,#0d1626);border:1px solid #ffffff20;border-radius:26px;box-shadow:0 24px 80px #0008,0 0 0 1px #6c8fe711;overflow:hidden}
+    .titlebar{min-height:68px;padding:16px 22px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ffffff14;background:#ffffff06}
+    .titlebar>span{display:flex;align-items:center;gap:11px;color:#f5f8ff;font-size:15px;font-weight:750;letter-spacing:.2px}
+    .titlebar>span:before{content:"";width:11px;height:11px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--blue));box-shadow:0 0 18px #42d9e899}
+    .win-controls{display:flex;gap:6px;direction:ltr}
+    .win-controls span{width:9px;height:9px;border-radius:50%;background:#53647d;font-size:0}
+    .win-controls span:first-child{background:#f5bd4f}.win-controls span:nth-child(2){background:#52c98b}.win-controls span:last-child{background:#f16c78}
+    .content{padding:clamp(18px,4vw,38px)}
+    h1{font-size:clamp(25px,4vw,38px);line-height:1.25;margin:0 0 10px;letter-spacing:-1px;color:#f5f8ff}
+    .content>p{font-size:14px;line-height:1.9;margin:5px 0 26px;color:var(--muted);max-width:700px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+    .panel{border:1px solid #ffffff17;background:linear-gradient(145deg,#17243aab,#111b2dcc);border-radius:var(--radius);padding:20px;box-shadow:inset 0 1px #ffffff08}
+    h2{font-size:15px;margin:0 0 16px;color:#e8efff;font-weight:700;display:flex;align-items:center;gap:8px}
+    label{display:block;color:#aebbd1;font-size:12px;margin:5px 0}
+    input,textarea{width:100%;border:1px solid #334662;background:#0b1423;color:#f3f6ff;padding:12px 13px;margin:5px 0 12px;border-radius:12px;outline:none;transition:.2s}
+    input::placeholder,textarea::placeholder{color:#657895}
+    input:focus,textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px #5b8cff22}
+    textarea{min-height:100px;resize:vertical}
+    .xp-btn{border:1px solid #ffffff20;border-radius:12px;padding:10px 16px;color:#eaf1ff;background:#ffffff0c;cursor:pointer;transition:.2s}
+    .xp-btn:hover{filter:brightness(1.15);transform:translateY(-1px);border-color:#ffffff40}
+    .xp-btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+    .primary{background:linear-gradient(115deg,#3978ed,#7259e8);border:0;color:white;font-weight:700;box-shadow:0 8px 22px #4b6fe944}
+    .wheel-wrap{display:flex;flex-direction:column;align-items:center;gap:12px}
+    canvas{display:block;width:min(100%,340px);max-width:100%;height:auto;aspect-ratio:1/1;filter:drop-shadow(0 12px 22px #0008)}
+    .wheel-wrap{width:100%;min-width:0}
+    #wheelPanel{min-width:0}
+    .challenge-list{min-width:0}
+    .challenge{min-width:0;overflow-wrap:anywhere}
+    .challenge .admin-actions{flex-shrink:0}
+    .pointer{font-size:22px;color:#ffcf70;margin-bottom:-18px;z-index:1;text-shadow:0 2px 12px #ffbd4b66}
+    .result{font-weight:700;color:#eaf2ff;min-height:24px;text-align:center;font-size:13px;line-height:1.7}
+    .notice{font-size:11px;color:var(--muted);line-height:1.8}
+    .challenge-list{display:flex;flex-direction:column;gap:9px;max-height:340px;overflow:auto;margin-top:14px;padding-right:2px}
+    .challenge{background:#0c1626;border:1px solid #ffffff12;border-radius:13px;padding:12px;font-size:12px;display:flex;gap:10px;align-items:center;justify-content:space-between}
+    .challenge strong{color:#edf3ff;font-size:12px}
+    .challenge small{color:#8192ad;display:block;margin-top:6px}
+    .status{font-size:10px;color:#a9bad4;white-space:nowrap;background:#ffffff0c;border-radius:99px;padding:5px 8px}
+    .admin{margin-top:18px;border-top:1px solid #ffffff17;padding-top:20px}
+    .admin-actions{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+    .task-btn{padding:6px 9px;font-size:11px;border-radius:8px}
+    #adminStatus{font-size:11px;color:#9db5e8;margin-top:12px}
+    .taskbar {
+  position: relative;
+  margin-top: 40px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 66px;
+  box-sizing: border-box;
+  background: #0a1020ee;
+  backdrop-filter: blur(18px);
+  border-top: 1px solid #ffffff18;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 7px 16px;
+  gap: 8px;
+  color: white;
+  z-index: 1000;
+}
+.taskbar-top {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  direction: ltr;
+}
+    .start{background:linear-gradient(115deg,#3978ed,#7259e8);border:0;border-radius:9px;color:white;font-weight:700;padding:7px 16px}
+    .task-label {
+  text-align: center;
+  direction: rtl;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+    .clock {
+  text-align: left;
+  font-size: 12px;
+  color: #aab4c8;
+}
+.task-version {
+  text-align: right;
+  font-size: 11px;
+  color: #8da9d8;
+}
+.taskbar-copyright {
+  text-align: center;
+  font-size: 10px;
+  color: #8792a8;
+}
+  .task-version {
+    font-size: 9px;
+  }
+    .taskbar-copyright {
+    font-size: 9px;
+  }
+
+    .admin-actions input{max-width:100%}
+    [hidden]{display:none!important}
+    @media(max-width:760px){
+      .desktop{padding:18px 10px 55px;gap:14px}
+      .grid{grid-template-columns:1fr}
+      .content{padding:17px}
+      .panel{padding:16px}
+      .titlebar{padding:13px 16px}
+      .challenge{align-items:flex-start;flex-direction:column}
+      .challenge .admin-actions{width:100%}
+    }
+    @media (max-width: 480px) {
+  .task-label {
+    font-size: 11px;
+  }}
+
+    /* Apply Estedad Font to Entire PunSpin Website */
+*,
+*::before,
+*::after {
+  font-family: 'Estedad', sans-serif !important;
+}
+
+button,
+input,
+textarea,
+select {
+  font-family: 'Estedad', sans-serif !important;
+}
+
+
+/* PUNSPIN SPLASH SCREEN */
+#splash-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at center, #142c50 0%, #080f20 55%, #050914 100%);
+  color: white;
+  transition: opacity .7s ease, visibility .7s ease;
+}
+
+#splash-screen.hide {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.splash-content {
+  text-align: center;
+  animation: splashEnter 1s ease;
+}
+
+.splash-logo {
+  font-size: 43px;
+  font-weight: 900;
+  letter-spacing: 3px;
+  text-shadow: 0 0 25px #318bff;
+}
+
+.splash-logo span {
+  color: #55b5ff;
+}
+
+.splash-wheel {
+  font-size: 85px;
+  margin: 25px 0;
+  animation: splashSpin 2.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 18px #328cff);
+}
+
+.splash-text {
+  font-size: 13px;
+  letter-spacing: 5px;
+  color: #a9cfff;
+  font-weight: 800;
+}
+
+.splash-loader {
+  width: 190px;
+  height: 4px;
+  background: #ffffff20;
+  border-radius: 10px;
+  margin: 25px auto 12px;
+  overflow: hidden;
+}
+
+.splash-loader-bar {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #328cff, #70d5ff);
+  transform-origin: left;
+  animation: splashLoading 2.5s linear forwards;
+}
+
+.splash-version {
+  font-size: 10px;
+  color: #7187a8;
+  letter-spacing: 2px;
+}
+
+@keyframes splashSpin {
+  0%, 100% { transform: rotate(-12deg) scale(1); }
+  50% { transform: rotate(12deg) scale(1.12); }
+}
+
+@keyframes splashEnter {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes splashLoading {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+
+
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Estedad:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="splash-screen">
+  <div class="splash-content">
+    <div class="splash-logo">PUN<span>SPIN</span></div>
+    <div class="splash-wheel">🎡</div>
+    <div class="splash-text">READY TO SPIN?</div>
+    <div class="splash-loader">
+      <div class="splash-loader-bar"></div>
+    </div>
+    <div class="splash-version">VERSION 1.0</div>
+  </div>
+</div>
+
+
+
+
+
+
+
+  <main class="desktop">
+    <div class="icons">
+      <div class="desk-icon" onclick="document.querySelector('#submitPanel').scrollIntoView({behavior:'smooth'})"><b>📝</b>ارسال چالش</div>
+      <div class="desk-icon" onclick="document.querySelector('#wheelPanel').scrollIntoView({behavior:'smooth'})"><b>🎡</b>گردونه شانس</div>
+      <div class="desk-icon" onclick="document.querySelector('#listPanel').scrollIntoView({behavior:'smooth'})"><b>📋</b>همه چالش‌ها</div>
+    </div>
+
+    <section class="window">
+      <header class="titlebar"><span>PunSpin - Fusion</span><div class="win-controls"><span>_</span><span>□</span><span>×</span></div></header>
+      <div class="content">
+        <h1>چالش بعدی توی گردونه منتظرته</h1>
+        <p>چالش خودت رو ثبت کن، پیشنهادهای کامیونیتی رو ببین و شانس انتخاب‌شدن در گردونه رو داشته باش.</p>
+
+        <div class="grid">
+          <section class="panel" id="submitPanel">
+            <h2>📨 ارسال چالش جدید</h2>
+            <form id="challengeForm">
+              <label for="nickname">اسم یا آیدی (اختیاری)</label>
+              <input id="nickname" maxlength="24" placeholder="مثلاً علی ,اصغر...">
+              <label for="challengeText">چالشت چیه؟</label>
+              <textarea id="challengeText" maxlength="140" required placeholder="یک چالش سرگرم‌کننده و بی‌خطر بنویس..."></textarea>
+              <button class="xp-btn primary" type="submit">ارسال برای بررسی</button>
+            </form>
+            <div id="submitMessage" class="notice" aria-live="polite"></div>
+          </section>
+
+          <section class="panel" id="wheelPanel">
+            <h2>🎡 گردونه عمومی چالش‌ها</h2>
+            <div class="wheel-wrap">
+              <div class="pointer">▼</div>
+              <canvas id="wheel" width="500" height="500"></canvas>
+              <button id="spinBtn" class="xp-btn primary" disabled>فقط مدیر می‌تواند بچرخاند</button>
+              <div id="wheelResult" class="result">در انتظار چالش‌ها...</div>
+              <div class="notice" id="wheelCount">۰ چالش در گردونه</div>
+            </div>
+          </section>
+        </div>
+
+        <section class="panel" id="listPanel" style="margin-top:15px">
+          <h2>📋 چالش‌های ارسال‌شده</h2>
+          <div class="notice">چالش‌های تأییدشده وارد گردونه می‌شوند. موارد در انتظار بررسی هم در این فهرست مشخص هستند.</div>
+          <div id="challengeList" class="challenge-list" style="margin-top:10px"><div class="notice">در حال اتصال...</div></div>
+        </section>
+
+        <section class="panel admin" id="adminPanel">
+          <h2>🔐 پنل مدیریت</h2>
+          <div id="adminLogin">
+            <input id="adminPassword" type="password" autocomplete="current-password" placeholder="رمز محرمانه مدیریت">
+            <button id="loginBtn" class="xp-btn">ورود مدیر</button>
+          </div>
+          <div id="adminTools" hidden>
+            <div class="admin-actions">
+              <button id="logoutBtn" class="xp-btn">خروج</button>
+              <button id="spinAdminBtn" class="xp-btn primary">چرخاندن گردونه</button>
+            </div>
+          </div>
+          <div id="adminStatus" aria-live="polite">برای مدیریت چالش‌ها وارد حساب مدیر شو.</div>
+        </section>
+        <p class="notice">لطفاً فقط چالش‌های سرگرم‌کننده، قانونی و بی‌خطر ارسال کنید. اطلاعات خصوصی خودتان یا دیگران را ننویسید.</p>
+      </div>
+    </section>
+  </main>
+
+<footer class="taskbar">
+  <div class="taskbar-top">
+    <span class="clock" id="clock"></span>
+
+    <span class="task-label">ساخته شده با 💕 توسط ممد</span>
+
+    <span class="task-version">PunSpin v1.0</span>
+  </div>
+
+  <div class="taskbar-copyright">
+    © 2026 PunSpin | تمامی حقوق محفوظ است.
+  </div>
+</footer>
+
+  <script>
+    const API_BASE = "https://punspin-api.onrender.com";
+    const form = document.querySelector("#challengeForm");
+    const list = document.querySelector("#challengeList");
+    const submitMessage = document.querySelector("#submitMessage");
+    const spinBtn = document.querySelector("#spinBtn");
+    const adminStatus = document.querySelector("#adminStatus");
+    let allChallenges = [];
+    let approved = [];
+    let adminToken = "";
+    let isAdmin = false;
+    let spinning = false;
+    let currentRotation = 0;
+
+    async function api(path, options = {}) {
+      const headers = { ...(options.headers || {}) };
+
+      // فقط درخواست‌هایی که بدنه JSON دارند Content-Type می‌گیرند؛
+      // این کار از preflight غیرضروری برای GET عمومی جلوگیری می‌کند.
+      if (options.body !== undefined && options.body !== null) {
+        headers["Content-Type"] = "application/json";
+      }
+      if (adminToken) headers.Authorization = `Bearer ${adminToken}`;
+
+      let res;
+      try {
+        res = await fetch(`${API_BASE}${path}`, {
+          ...options,
+          headers,
+          cache: "no-store"
+        });
+      } catch (networkError) {
+        console.error("PunSpin network/CORS error:", networkError);
+        throw new Error("اتصال به سرور برقرار نشد. اینترنت یا دسترسی مرورگر به سرور را بررسی کن.");
+      }
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.error || `خطای سرور: HTTP ${res.status}`);
+      }
+      return data;
+    }
+
+    async function loadChallenges() {
+      try {
+        allChallenges = isAdmin
+          ? await api("/admin/challenges")
+          : await api("/challenges");
+        approved = allChallenges
+  .filter(item =>
+    String(item.status || "").trim().toLowerCase() === "approved"
+  )
+  .map(item => ({
+    id: item.id,
+    text: item.challenge_text,
+    nickname: item.author_name || "ناشناس"
+  }));
+        renderChallenges();
+        drawWheel();
+        document.querySelector("#wheelCount").textContent = `${approved.length} چالش در گردونه`;
+        spinBtn.disabled = !isAdmin || approved.length === 0 || spinning;
+        spinBtn.textContent = isAdmin ? "چرخاندن گردونه" : "فقط مدیر می‌تواند بچرخاند";
+      } catch (err) {
+        allChallenges = [];
+        approved = [];
+        list.innerHTML = '<div class="notice">دریافت چالش‌ها ناموفق بود. اتصال API را بررسی کن.</div>';
+
+        // حتی اگر API در دسترس نبود، Canvas باید نمایش داده شود.
+        drawWheel();
+        document.querySelector("#wheelCount").textContent = "۰ چالش در گردونه";
+        document.querySelector("#wheelResult").textContent = "ارتباط با سرور برقرار نشد.";
+        spinBtn.disabled = true;
+
+        console.error("Load Challenges Error:", err);
+      }
+    }
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const text = document.querySelector("#challengeText").value.trim();
+  const nickname = document.querySelector("#nickname").value.trim().slice(0, 24);
+
+  if (text.length < 4) {
+    submitMessage.textContent = "چالش باید حداقل ۴ حرف داشته باشد.";
+    return;
+  }
+
+  try {
+    submitMessage.textContent = "در حال ارسال...";
+
+    await api("/challenges", {
+      method: "POST",
+      body: JSON.stringify({
+        challenge_text: text,
+        author_name: nickname || "ناشناس"
+      })
+    });
+
+    form.reset();
+    submitMessage.textContent = "چالش ثبت شد و وضعیت آن «در حال بررسی» است.";
+    await loadChallenges();
+
+  } catch (err) {
+    submitMessage.textContent = "خطای واقعی: " + err.message;
+    console.error("PunSpin API Error:", err);
+  }
+});
+
+    function renderChallenges() {
+      if (!allChallenges.length) { list.innerHTML = '<div class="notice">هنوز چالشی ثبت نشده؛ اولین نفر باش!</div>'; return; }
+      list.innerHTML = "";
+      for (const item of allChallenges) {
+        const row = document.createElement("div"); row.className = "challenge";
+        const info = document.createElement("div");
+        const title = document.createElement("strong"); title.textContent = item.challenge_text || "بدون متن";
+        const by = document.createElement("small"); by.textContent = "ارسال‌کننده: " + (item.author_name || "ناشناس");
+        info.append(title, by);
+        const actions = document.createElement("div"); actions.className = "admin-actions";
+        const status = document.createElement("span"); status.className = "status";
+        const currentStatus = String(item.status || "").trim().toLowerCase();
+
+status.textContent =
+  currentStatus === "approved" ? "تأییدشده" :
+  currentStatus === "completed" ? "انجام‌شده" :
+  currentStatus === "rejected" ? "ردشده" :
+  currentStatus === "pending" ? "در انتظار بررسی" :
+  "وضعیت نامشخص";
+        actions.append(status);
+        if (isAdmin) {
+          if (String(item.status || "").trim().toLowerCase() === "pending") {
+            actions.append(
+              makeButton("تأیید", () => changeStatus(item.id, "approved")),
+              makeButton("رد", () => changeStatus(item.id, "rejected"))
+            );
+          }
+          actions.append(makeButton("حذف", async () => {
+            if (confirm("این چالش حذف شود؟")) { await api(`/admin/challenges/${item.id}`, { method: "DELETE" }); await loadChallenges(); }
+          }));
+        }
+        row.append(info, actions); list.append(row);
+      }
+    }
+
+    async function changeStatus(id, status) {
+      await api(`/admin/challenges/${id}`, { method: "PATCH", body: JSON.stringify({ status }) });
+      await loadChallenges();
+    }
+
+    function makeButton(label, action) {
+      const b = document.createElement("button"); b.className = "xp-btn task-btn"; b.textContent = label;
+      b.addEventListener("click", async () => { try { await action(); } catch(e) { alert("عملیات انجام نشد: " + e.message); console.error(e); } });
+      return b;
+    }
+
+    const canvas = document.querySelector("#wheel");
+    console.log("Canvas:", canvas, "Width:", canvas?.width, "Height:", canvas?.height);
+    const ctx = canvas.getContext("2d");
+    const colors = ["#f6c445","#63b6e8","#ec7777","#85c878","#b18be8","#f39c5a","#55c9b5","#e58db5"];
+function drawWheel() {
+  const cx = 250, cy = 250, radius = 235;
+  ctx.clearRect(0, 0, 500, 500);
+
+  if (!approved.length) {
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+    ctx.fillStyle = "#d8e6f6";
+    ctx.fill();
+
+    ctx.fillStyle = "#174a91";
+    ctx.font = "bold 30px Estedad";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("چالشی وجود ندارد", cx, cy);
+    return;
+  }
+
+  const slice = Math.PI * 2 / approved.length;
+
+  approved.forEach((item, i) => {
+    const start = currentRotation + i * slice;
+
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, radius, start, start + slice);
+    ctx.closePath();
+
+    ctx.fillStyle = colors[i % colors.length];
+    ctx.fill();
+    ctx.strokeStyle = "#fff";
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(start + slice / 2);
+
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = "#17345a";
+    ctx.font = "800 13px Estedad";
+
+    let label = item.text;
+    if (label.length > 22) label = label.slice(0, 21) + "…";
+
+    ctx.fillText(label, radius * 0.68, 0);
+
+    ctx.restore();
+  });
+
+  ctx.beginPath();
+  ctx.arc(cx, cy, 27, 0, Math.PI * 2);
+  ctx.fillStyle = "#f4f2e8";
+  ctx.fill();
+  ctx.strokeStyle = "#174a91";
+  ctx.lineWidth = 4;
+  ctx.stroke();
+}
+
+async function spinWheel() {
+  if (!isAdmin || !approved.length || spinning) return;
+
+  spinning = true;
+  spinBtn.disabled = true;
+
+  const duration = 5000;
+  const startTime = performance.now();
+  const startRotation = currentRotation;
+
+  const slice = (Math.PI * 2) / approved.length;
+
+  // انتخاب تصادفی یک خانه برای توقف نشانگر در بالای گردونه
+  const winnerIndex = Math.floor(Math.random() * approved.length);
+
+  // مرکز خانه انتخاب‌شده باید دقیقاً زیر نشانگر ساعت ۱۲ قرار بگیرد
+  const targetAngle = -Math.PI / 2 - (winnerIndex + 0.5) * slice;
+
+  const fullTurns = Math.PI * 2 * 6;
+  const currentNormalized = ((startRotation % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+  const targetNormalized = ((targetAngle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+
+  const extraAngle = (targetNormalized - currentNormalized + Math.PI * 2) % (Math.PI * 2);
+  const targetRotation = startRotation + fullTurns + extraAngle;
+
+  function animate(now) {
+    const t = Math.min(1, (now - startTime) / duration);
+    const ease = 1 - Math.pow(1 - t, 4);
+
+    currentRotation = startRotation + (targetRotation - startRotation) * ease;
+    drawWheel();
+
+    if (t < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      document.querySelector("#wheelResult").textContent =
+        "🎉 چالش انتخاب‌شده: " + approved[winnerIndex].text;
+
+      spinning = false;
+      spinBtn.disabled = !isAdmin || approved.length === 0;
+    }
+  }
+
+  requestAnimationFrame(animate);
+}
+    spinBtn.addEventListener("click", spinWheel);
+    document.querySelector("#spinAdminBtn").addEventListener("click", spinWheel);
+
+    document.querySelector("#loginBtn").addEventListener("click", async () => {
+      const candidate = document.querySelector("#adminPassword").value.trim();
+      if (!candidate) { adminStatus.textContent = "رمز مدیریت را وارد کن."; return; }
+      adminToken = candidate;
+      try {
+        await api("/admin/challenges");
+        isAdmin = true;
+        document.querySelector("#adminLogin").hidden = true;
+        document.querySelector("#adminTools").hidden = false;
+        document.querySelector("#adminPassword").value = "";
+        adminStatus.textContent = "ورود مدیر موفق بود.";
+        await loadChallenges();
+      } catch (err) {
+        adminToken = "";
+        isAdmin = false;
+
+        document.querySelector("#adminLogin").hidden = false;
+        document.querySelector("#adminTools").hidden = true;
+
+        adminStatus.textContent = "خطای ورود: " + err.message;
+
+        console.error("Admin Login Error:", err);
+        // بعد از خطای ورود هم نمای عمومی و گردونه دوباره بارگذاری شوند.
+        await loadChallenges();
+      }
+    });
+
+    document.querySelector("#logoutBtn").addEventListener("click", () => {
+      adminToken = ""; isAdmin = false;
+      document.querySelector("#adminLogin").hidden = false;
+      document.querySelector("#adminTools").hidden = true;
+      adminStatus.textContent = "از پنل مدیریت خارج شدی.";
+      loadChallenges();
+    });
+
+    function updateClock(){document.querySelector("#clock").textContent=new Date().toLocaleTimeString("fa-IR",{hour:"2-digit",minute:"2-digit"});}
+    updateClock(); setInterval(updateClock,10000);
+    drawWheel(); // نمایش اولیه گردونه، حتی قبل از پاسخ API
+    loadChallenges();
+
+    // به‌روزرسانی خودکار فهرست عمومی برای نمایش چالش‌های تازه‌ارسال‌شده
+    setInterval(() => {
+      if (!isAdmin && !document.hidden) loadChallenges();
+    }, 15000);
+  </script>
+
+<script>
+window.addEventListener("load", function () {
+  const splash = document.getElementById("splash-screen");
+
+  setTimeout(function () {
+    splash.classList.add("hide");
+
+    setTimeout(function () {
+      splash.remove();
+    }, 700);
+
+  }, 2500);
+});
+</script>
+
+</body>
+</html>
