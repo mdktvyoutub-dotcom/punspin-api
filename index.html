@@ -330,6 +330,103 @@ select {
         <p class="notice">لطفاً فقط چالش‌های سرگرم‌کننده، قانونی و بی‌خطر ارسال کنید. اطلاعات خصوصی خودتان یا دیگران را ننویسید.</p>
       </div>
     </section>
+    <!-- YouTube Subscribe Section -->
+<div class="youtube-subscribe">
+  <div class="youtube-icon">
+    <svg viewBox="0 0 24 24" width="38" height="38" fill="white">
+      <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8ZM9.6 15.6V8.4l6.2 3.6-6.2 3.6Z"/>
+    </svg>
+  </div>
+
+  <div class="youtube-content">
+    <h3>از ما حمایت کن!</h3>
+    <p>برای حمایت از ما و دیدن ویدیوهای جدید، عضو کانال یوتیوب شو.</p>
+
+    <a href="https://www.youtube.com/@KhodeFusion"
+       target="_blank"
+       rel="noopener noreferrer"
+       class="youtube-button">
+       عضویت در کانال یوتیوب
+    </a>
+  </div>
+</div>
+
+<style>
+.youtube-subscribe {
+  direction: rtl;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 20px;
+  margin: 20px auto;
+  max-width: 650px;
+  background: linear-gradient(135deg, #251313, #171717);
+  border: 1px solid #ff3333;
+  border-radius: 18px;
+  box-shadow: 0 5px 25px rgba(255, 0, 0, 0.12);
+  color: white;
+  font-family: inherit;
+}
+
+.youtube-icon {
+  min-width: 65px;
+  height: 65px;
+  border-radius: 16px;
+  background: #ff0033;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.youtube-content {
+  flex: 1;
+}
+
+.youtube-content h3 {
+  margin: 0 0 8px;
+  font-size: 20px;
+}
+
+.youtube-content p {
+  margin: 0 0 14px;
+  color: #ccc;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.youtube-button {
+  display: inline-block;
+  background: #ff0033;
+  color: white;
+  text-decoration: none;
+  padding: 11px 20px;
+  border-radius: 10px;
+  font-weight: bold;
+  transition: .2s;
+}
+
+.youtube-button:hover {
+  background: #d9002b;
+  transform: translateY(-2px);
+}
+
+@media(max-width: 500px) {
+  .youtube-subscribe {
+    margin: 15px 10px;
+    padding: 15px;
+    gap: 12px;
+  }
+
+  .youtube-icon {
+    min-width: 48px;
+    height: 48px;
+  }
+
+  .youtube-content h3 {
+    font-size: 17px;
+  }
+}
+</style>
   </main>
 
 <footer class="taskbar">
